@@ -1,0 +1,13 @@
+{
+  "name": "09-mongodb-mongoose",
+  "version": "1.0.0",
+  "scripts": { "test": "jest --runInBand" },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "mongoose": "^8.1.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": { "testEnvironment": "node" }
+}
