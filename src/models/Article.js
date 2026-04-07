@@ -37,9 +37,18 @@ articleSchema.pre("save", function (next) {
     let slugTitle = this.title;
 
     slugTitle = slugTitle.trim();
+
+    slugTitle = slugTitle.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
     slugTitle = slugTitle.toLowerCase();
+
     slugTitle = slugTitle.replace(/[^a-z0-9 -]/g, "");
+
     slugTitle = slugTitle.replace(/\s+/g, "-");
+
+    slugTitle = slugTitle.replace(/-+/g, "-");
+
+    slugTitle = slugTitle.replace(/^-+|-+$/g, "");
 
     this.slug = slugTitle;
   }
@@ -51,8 +60,7 @@ articleSchema.pre("save", function (next) {
  * Tarea 2 — Query estática: devuelve artículos publicados
  */
 articleSchema.statics.findPublished = function () {
- 
-  return this.find({ published: true})
+  return this.find({ published: true });
 };
 
 /**
@@ -60,15 +68,14 @@ articleSchema.statics.findPublished = function () {
  * @param {string} tag
  */
 articleSchema.statics.findByTag = function (tag) {
-  return this.find({tags: tag})
+  return this.find({ tags: tag });
 };
 
 /**
  * Tarea 3 — Virtual: primeros 150 caracteres del content
  */
 articleSchema.virtual("summary").get(function () {
-  // TODO
-  return this.content.substring(0,150)
+  return (this.content || "").substring(0, 150);
 });
 
 const Article = mongoose.model("Article", articleSchema);
