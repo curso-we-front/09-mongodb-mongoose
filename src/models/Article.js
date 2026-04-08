@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 /**
  * Tarea 1: Define el schema de Article.
@@ -15,9 +15,15 @@ const mongoose = require('mongoose');
  */
 const articleSchema = new mongoose.Schema(
   {
-    // TODO: definir los campos
+    title: { type: String, required: true, minlength: 3, maxlength: 100 },
+    content: { type: String, required: true, minlength: 10 },
+    author: { type: String, required: true },
+    slug: { type: String, unique: true },
+    published: { type: Boolean, default: false },
+    tags: [String],
+    authorRef: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 /**
@@ -26,8 +32,27 @@ const articleSchema = new mongoose.Schema(
  * Ejemplo: "Hola Mundo" → "hola-mundo"
  * Solo regenera el slug si el title ha cambiado (isModified).
  */
-articleSchema.pre('save', function (next) {
-  // TODO
+articleSchema.pre("save", function (next) {
+  if (this.isModified("title")) {
+    let slugTitle = this.title;
+
+    slugTitle = slugTitle.trim();
+
+    slugTitle = slugTitle.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    slugTitle = slugTitle.toLowerCase();
+
+    slugTitle = slugTitle.replace(/[^a-z0-9 -]/g, "");
+
+    slugTitle = slugTitle.replace(/\s+/g, "-");
+
+    slugTitle = slugTitle.replace(/-+/g, "-");
+
+    slugTitle = slugTitle.replace(/^-+|-+$/g, "");
+
+    this.slug = slugTitle;
+  }
+
   next();
 });
 
@@ -35,7 +60,7 @@ articleSchema.pre('save', function (next) {
  * Tarea 2 — Query estática: devuelve artículos publicados
  */
 articleSchema.statics.findPublished = function () {
-  // TODO
+  return this.find({ published: true });
 };
 
 /**
@@ -43,16 +68,16 @@ articleSchema.statics.findPublished = function () {
  * @param {string} tag
  */
 articleSchema.statics.findByTag = function (tag) {
-  // TODO
+  return this.find({ tags: tag });
 };
 
 /**
  * Tarea 3 — Virtual: primeros 150 caracteres del content
  */
-articleSchema.virtual('summary').get(function () {
-  // TODO
+articleSchema.virtual("summary").get(function () {
+  return (this.content || "").substring(0, 150);
 });
 
-const Article = mongoose.model('Article', articleSchema);
+const Article = mongoose.model("Article", articleSchema);
 
 module.exports = Article;

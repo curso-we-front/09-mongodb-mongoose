@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 /**
  * Tarea 4: Define el schema de User.
@@ -10,11 +10,12 @@ const mongoose = require('mongoose');
  */
 const userSchema = new mongoose.Schema(
   {
-    // TODO: definir los campos
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;
