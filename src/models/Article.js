@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 /**
  * Tarea 1: Define el schema de Article.
@@ -16,8 +16,33 @@ const mongoose = require('mongoose');
 const articleSchema = new mongoose.Schema(
   {
     // TODO: definir los campos
+    title: {
+      type: String,
+      required: [true, "The title is required"],
+      minLength: [3, "It must be at least 3 characters long "],
+      maxLength: [100, "The maximum length is 100 characters"],
+    },
+    content: {
+      type: String,
+      required: [true, "The content is required"],
+      minLength: [10, "The content is too short"],
+    },
+    author: {
+      type: String,
+      required: [true, "The author is required"],
+    },
+    slug: {
+      type: String,
+      unique: true,
+    },
+    published: {
+      type: Boolean,
+      default: false,
+    },
+    tags: [String],
+    authorRef: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 /**
@@ -26,8 +51,11 @@ const articleSchema = new mongoose.Schema(
  * Ejemplo: "Hola Mundo" → "hola-mundo"
  * Solo regenera el slug si el title ha cambiado (isModified).
  */
-articleSchema.pre('save', function (next) {
+articleSchema.pre("save", function (next) {
   // TODO
+  if (this.isModified("title")) {
+    this.slug = this.title.toLocaleLowerCase().replace(/\s+/g, "-");
+  }
   next();
 });
 
@@ -35,7 +63,7 @@ articleSchema.pre('save', function (next) {
  * Tarea 2 — Query estática: devuelve artículos publicados
  */
 articleSchema.statics.findPublished = function () {
-  // TODO
+  return this.find({ published: true });
 };
 
 /**
@@ -44,15 +72,17 @@ articleSchema.statics.findPublished = function () {
  */
 articleSchema.statics.findByTag = function (tag) {
   // TODO
+  return this.find({ tags: tag });
 };
 
 /**
  * Tarea 3 — Virtual: primeros 150 caracteres del content
  */
-articleSchema.virtual('summary').get(function () {
+articleSchema.virtual("summary").get(function () {
   // TODO
+  return this.content.substring(0, 150);
 });
 
-const Article = mongoose.model('Article', articleSchema);
+const Article = mongoose.model("Article", articleSchema);
 
 module.exports = Article;
